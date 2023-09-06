@@ -37,11 +37,57 @@ class _TaskListScreenState extends State<TaskListScreen> {
     });
   }
 
+  void deleteTask(int index) {
+    setState(() {
+      tasks.removeAt(index);
+    });
+  }
+
+  void editTask(int index) {
+    var updatedTask = tasks[index]; // 선택한 할 일 항목을 가져옵니다.
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final TextEditingController editingController = TextEditingController()
+          ..text = updatedTask.title; // 편집 화면에 현재 할 일을 설정합니다.
+
+        return AlertDialog(
+          title: Text('할 일 편집'),
+          content: TextField(
+            controller: editingController,
+            decoration: InputDecoration(hintText: '할 일을 입력하세요'),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('취소'),
+            ),
+            TextButton(
+              onPressed: () {
+                var updatedTitle = editingController.text;
+                if (updatedTitle.isNotEmpty) {
+                  setState(() {
+                    updatedTask.title = updatedTitle;
+                  });
+                  Navigator.of(context).pop();
+                }
+              },
+              child: Text('저장'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('할 일 목록'),
+        title: Text('처음 만드는 Flutter ToDo List'),
       ),
       body: ListView.builder(
         itemCount: tasks.length,
@@ -59,6 +105,25 @@ class _TaskListScreenState extends State<TaskListScreen> {
               onChanged: (value) {
                 toggleTask(index);
               },
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.edit), // "편집" 버튼
+                  onPressed: () {
+                    // 선택한 할 일 항목을 편집할 수 있는 화면을 표시합니다.
+                    editTask(index);
+                  },
+                ),
+                IconButton(
+                  icon: Icon(Icons.delete),
+                  onPressed: () {
+                    // 해당 인덱스의 할 일 항목을 삭제합니다.
+                    deleteTask(index);
+                  },
+                ),
+              ],
             ),
           );
         },
